@@ -3,11 +3,11 @@
 """
 Download a local copy of EDGAR. Allows for permenant caching of downloaded daily zips.
 Probably only works on Linux.
-EDGAR HTML specification: https://www.sec.gov/info/edgar/ednews/edhtml.htm
-EDGAR FTP specification: https://www.sec.gov/edgar/searchedgar/ftpusers.htm
+EDGAR HTML specification: https://www.sec.gov/info/edgar_utils.py/ednews/edhtml.htm
+EDGAR FTP specification: https://www.sec.gov/edgar_utils.py/searchedgar/ftpusers.htm
 URL Change in 2016:
-  <2016 ftp URL: ftp://ftp.sec.gov/edgar/data/2098/0000002098-96-000003.txt
-  >2016 http URL: https://www.sec.gov/Archives/edgar/data/2098/0000002098-96-000003.txt
+  <2016 ftp URL: ftp://ftp.sec.gov/edgar_utils.py/data/2098/0000002098-96-000003.txt
+  >2016 http URL: https://www.sec.gov/Archives/edgar_utils.py/data/2098/0000002098-96-000003.txt
 """
 
 import os
