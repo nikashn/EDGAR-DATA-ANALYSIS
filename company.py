@@ -1,7 +1,6 @@
 import requests, zipfile, io
 from math import ceil
 
-
 # Represents a company in the EDGAR database
 class Company():
     ARCHIVE_URL = "https://www.sec.gov/Archives/"
@@ -11,7 +10,7 @@ class Company():
         self.cik = cik
 
     # Returns a list of the URL for this filing type in the given year
-    def getFilingsUrl(self, filingType="10-K", fyear="2005"):
+    def getFilingsUrl(self, filingType="10-K", fyear=""):
 
         # Find the index file that contains to this file in each quarter
         output = []
