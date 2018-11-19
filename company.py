@@ -10,8 +10,8 @@ class Company():
         self.name = name
         self.cik = cik
 
-    # Returns a list of the URL for this filing type in the given year
-    def getFilingsUrl(self, filingType="10-K", fyear="2005"):
+    # Returns a list of the URL for this filing type (e.g. 10-K, 8) in the given year
+    def getFilingsURLs(self, filingType, fyear):
 
         # Find the index file that contains to this file in each quarter
         output = []
@@ -27,11 +27,20 @@ class Company():
             # Search index file for entry matching this
             for line in index_file.splitlines()[11:]:
                 data = line.split("|")
-                if int(self.cik) == int(data[0]) and ("10-K" in data[2]):
+                if int(self.cik) == int(data[0]) and (filingType in data[2]):
                     output.append(Company.ARCHIVE_URL + data[4])
 
         return output
 
     # Returns the HTML content of a filing for this company
-    def getFilings(self, filingType="10-K", date=""):
-        return 0
+    def getFilingsFromURL(self, filingType, fyear):
+        # Get the files for this filingType on this fiscal year
+        urls = self.getFilingsURLs(filingType, fyear)
+
+        # Download all of the files
+        files = []
+        for url in urls:
+            c = requests.get(url).content
+            files.append(c)
+
+        return files

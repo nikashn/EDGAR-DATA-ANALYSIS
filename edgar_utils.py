@@ -30,3 +30,10 @@ class EdgarLookup():
     # Get the Company Name given the CIK
     def getCompanyName(self, cik):
         return self.rev_lookup[cik]
+
+
+class EdgarDownloader():
+
+    # Downloads all index files to the given folder Path
+    def downloadIndexFiles(self, folderPath="./index_files/", fromYear = 2005, toYear = 2018):
+        return 0
