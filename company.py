@@ -1,7 +1,6 @@
 import requests, zipfile, io
 import gzip
 
-
 # Represents a company in the EDGAR database
 class Company():
     ARCHIVE_URL = "https://www.sec.gov/Archives/"
@@ -9,6 +8,7 @@ class Company():
     def __init__(self, name, cik):
         self.name = name
         self.cik = cik
+
 
     # Returns a list of the URL for this filing type (e.g. 10-K, 8) in the given year
     def getFilingsURLs(self, filingType, fyear):

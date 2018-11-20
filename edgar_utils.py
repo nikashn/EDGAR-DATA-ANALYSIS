@@ -1,4 +1,5 @@
 import requests
+import urllib
 
 # Represents an accessor to the EDGAR database
 class EdgarLookup():
@@ -32,8 +33,15 @@ class EdgarLookup():
         return self.rev_lookup[cik]
 
 
-class EdgarDownloader():
+class EdgarDownloader:
 
     # Downloads all index files to the given folder Path
-    def downloadIndexFiles(self, folderPath="./index_files/", fromYear = 2005, toYear = 2018):
-        return 0
+    def downloadIndexFiles(self, folderPath="./index_files/", fromYear=2005, toYear=2017)
+        base_link = "https://www.sec.gov/Archives/edgar/full-index"
+        while (fromYear <= toYear):
+            qtrCount = 1
+            while (qtrCount <= 4)
+                web_link = base_link + "/fromYear" + "/QTR" + qtrCount + "/master.idx"
+                urllib.urlretrieve(web_link, folderPath)
+                qtrCount = qtrCount + 1
+            fromYear = fromYear + 1
