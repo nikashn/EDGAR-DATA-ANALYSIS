@@ -1,5 +1,8 @@
 import requests, zipfile, io
-import gzip
+import os
+from math import ceil
+from edgar_utils import EdgarDownloader
+from bs4 import BeautifulSoup
 
 # Represents a company in the EDGAR database
 class Company():
@@ -9,62 +12,59 @@ class Company():
         self.name = name
         self.cik = cik
 
-
-    # Returns a list of the URL for this filing type (e.g. 10-K, 8) in the given year
+    # Returns a list of the URL for this filing type (e.g. 10-K, 8K) in the given year
     def getFilingsURLs(self, filingType, fyear):
-
+        
         # Find the index file that contains to this file in each quarter
         output = []
-        for q in range(1, 5):
-            fquarter = "QTR" + str(q)
-            index_url = Company.ARCHIVE_URL + "edgar/full-index/" + fyear + "/" + fquarter + "/master.zip"
-
-            # Download and extract the zip file
-            index_zip = requests.get(index_url)
-            tmp = zipfile.ZipFile(io.BytesIO(index_zip.content))
-            index_file = tmp.read('master.idx').decode(encoding="UTF-8", errors='replace')
-
-
+        
+        dirpath = "index_files"
+        for f in os.listdir(dirpath):
+            file = open(f, 'r')
+            index_file = file.read()
+            
             # Search index file for entry matching this
             for line in index_file.splitlines()[11:]:
                 data = line.split("|")
-                if (int(self.cik) == int(data[0])) and (filingType in data[2]):
-                    output.append(Company.ARCHIVE_URL + data[4])
+                if int(self.cik) == int(data[0]) and (filingType in data[2]):
+                    output.append(Company.ARCHIVE_URL + data[4]) # data[4] = txt file
+                    
+        return output # returns list of txt file urls corresponding to fyear and filing type
 
-        return output
-
-    # Returns the HTML content of a filing for this company
+    # Returns the txt content of a filing for this company
     def getFilingsFromURL(self, filingType, fyear):
+        
         # Get the files for this filingType on this fiscal year
         urls = self.getFilingsURLs(filingType, fyear)
-
+        
         # Download all of the files
-        files = []
+        txtFiles = []
         for url in urls:
-            c = requests.get(url).content
+            c = requests.get(url).content # what does content do?
             files.append(c)
 
-        return files
+        return txtFiles # returns list of txt files corresponding to fyear and filing type
 
-    # Returns the HTML content of a filing for this company
-    def getFilingsFromFile(self, filingType, fyear):
+    def getHTML(self, filingType, fyear):
 
-        urls = [] # URLs for all the 10-Ks
-        for q in range(1, 5):
-            # Read the local index file for this filingType on this fiscal year
-            path = "./index_files/master_index_" + fyear + "_QTR" + str(q) + ".idx"
-            index_file = open(path, "r").read()
+        # Get files for this filingType on this fiscal year 
+        files = self.getFilingsFromURL(filingType, fyear)
 
-            # Search this index file for entry matching the filing we want
-            for line in index_file.splitlines()[11:]:
-                data = line.split("|")
-                if (int(self.cik) == int(data[0])) and (filingType in data[2]):
-                    urls.append(Company.ARCHIVE_URL + data[4])
+        for f in files:
+            with open(f, 'r') as file:
+                start = False
+                html_list = []
+                for line in file: # traverse lines in txt file for html filename
+                    if ("<HTML>" in line):
+                        start = True
+                    if (start):
+                        html_list.append(line)
+                del html_list[-1] # remove the last element in list--end of file message
+                html_txt = "".join(html_list) # join into one string
+                
+                with open("10-K.html", 'w+') as html_file: # write html content to file, then examine
+                    html_file.write(html_txt)
+                    html_file.close()
 
-        # Download all of the files
-        files = []
-        for url in urls:
-            c = requests.get(url).content
-            files.append(c)
-
-        return files
+                html_file = open('10-K.html', 'r')
+                html_content = html_file.read()
