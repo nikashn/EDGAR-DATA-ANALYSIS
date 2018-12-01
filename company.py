@@ -13,13 +13,39 @@ class Company():
         self.cik = cik
 
     # Returns a list of the URL for this filing type (e.g. 10-K, 8K) in the given year
-    def getFilingsURLs(self, filingType, fyear):
-        
+    def getFilingsURLs(self, filingType, startDate, endDate):
+
+        # Represents all the index files we need to search
+        searchIndices = []
+
+        # Calculate the start and end quarter
+        start = startDate.split("/")
+        end = endDate.split("/")
+        sYear = int("20" + start[2])
+        eYear = int("20" + start[2])
+        sQuarter = (int(start[0]) - 1) // 3 + 1 # Calculate quarter
+        eQuarter = (int(start[0]) - 1) // 3 + 1 # Calculate quarter
+
+        # Do-while loop to generate all indices
+        while True:
+            # Add the current quarter (starting with our start date)
+            file = "./index_files/master_index_" + str(sYear) + "_QTR" + str(sQuarter) + ".idx"
+            searchIndices.append(file)
+
+            # If I just added the last quarter, end
+            if sQuarter != eQuarter or sYear != eYear:
+                break
+
+            # Move to the next quarter
+            sQuarter = sQuarter + 1
+            if sQuarter == 5:
+                sYear = sYear + 1
+                sQuarter = 1
+
         # Find the index file that contains to this file in each quarter
         output = []
-        
-        dirpath = "index_files"
-        for f in os.listdir(dirpath):
+
+        for f in searchIndices:
             file = open(f, 'r')
             index_file = file.read()
             
@@ -32,39 +58,28 @@ class Company():
         return output # returns list of txt file urls corresponding to fyear and filing type
 
     # Returns the txt content of a filing for this company
-    def getFilingsFromURL(self, filingType, fyear):
+    def getFilingsFromURL(self, filingType, startDate, endDate):
         
         # Get the files for this filingType on this fiscal year
-        urls = self.getFilingsURLs(filingType, fyear)
+        urls = self.getFilingsURLs(filingType, startDate, endDate)
         
         # Download all of the files
         txtFiles = []
         for url in urls:
-            c = requests.get(url).content # what does content do?
-            files.append(c)
+            c = requests.get(url).content.decode("utf-8").splitlines()[9: -1];
+            txtFiles.append(self.getHTMLFromText(c))
 
         return txtFiles # returns list of txt files corresponding to fyear and filing type
 
-    def getHTML(self, filingType, fyear):
+    # Returns a single string representation of the given array
+    def getHTMLFromText(self, text):
+        # Remove all lines before <html>
+        while "<html>" not in text[0].lower():
+            del(text[0])
 
-        # Get files for this filingType on this fiscal year 
-        files = self.getFilingsFromURL(filingType, fyear)
+        # Remove all ending lines after <\html>
+        while "</html>" not in text[len(text) - 1].lower():
+            del(text[len(text) - 1])
 
-        for f in files:
-            with open(f, 'r') as file:
-                start = False
-                html_list = []
-                for line in file: # traverse lines in txt file for html filename
-                    if ("<HTML>" in line):
-                        start = True
-                    if (start):
-                        html_list.append(line)
-                del html_list[-1] # remove the last element in list--end of file message
-                html_txt = "".join(html_list) # join into one string
-                
-                with open("10-K.html", 'w+') as html_file: # write html content to file, then examine
-                    html_file.write(html_txt)
-                    html_file.close()
-
-                html_file = open('10-K.html', 'r')
-                html_content = html_file.read()
+        # Return a single string (joined by a single space)
+        return " ".join(x.strip() for x in text)

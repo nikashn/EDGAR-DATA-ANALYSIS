@@ -36,12 +36,17 @@ class EdgarLookup():
 class EdgarDownloader:
 
     # Downloads all index files to the given folder Path
-    def downloadIndexFiles(self, folderPath="./index_files/", fromYear=2005, toYear=2017)
+    def downloadIndexFiles(self, folderPath="./index_files/", fromYear=2005, toYear=2017):
         base_link = "https://www.sec.gov/Archives/edgar/full-index"
-        while (fromYear <= toYear):
-            qtrCount = 1
-            while (qtrCount <= 4)
-                web_link = base_link + "/fromYear" + "/QTR" + qtrCount + "/master.idx"
-                urllib.urlretrieve(web_link, folderPath)
-                qtrCount = qtrCount + 1
-            fromYear = fromYear + 1
+
+        for year in range(fromYear, toYear + 1):
+            for qtr in range(1, 5):
+                # Get the URL and its text for each quarter/year
+                web_link = base_link + "/" + str(year) + "/QTR" + str(qtr) + "/master.idx"
+                text = requests.get(web_link).content
+
+                # Write the text to the file
+                local_path = "master_index_" + str(year) + "_QTR" + str(qtr) + ".idx"
+                file = open(folderPath + local_path, "w")
+                file.write(text)
+                file.close()

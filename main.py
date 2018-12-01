@@ -3,8 +3,7 @@ from company import Company
 from bs4 import BeautifulSoup
 import csv
 
-if __name__ == "__main__":
-
+def funda_test():
     with open('funda.csv') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         line_count = 0
@@ -24,8 +23,16 @@ if __name__ == "__main__":
                 factors = []
                 for file in files:
                     soup = BeautifulSoup(file, 'html.parser')
-                    print(soup.title)
+                    print(soup.find_all("html"))
 
             line_count += 1
 
-    print("Completed!")
+if __name__ == "__main__":
+
+    c = Company("AAR CORP", "0000001750")
+    files = c.getFilingsFromURL("10-K", "5/31/06", "9/5/06")
+
+    # Find all the 10-K's in the range
+    for file in files:
+        soup = BeautifulSoup(file, "html.parser")
+        print(len(soup.find_all("p")))
