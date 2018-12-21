@@ -34,5 +34,15 @@ if __name__ == "__main__":
 
     # Find all the 10-K's in the range
     for file in files:
+       c = Company("AAR CORP", "0000001750")
+    files = c.getFilingsFromURL("10-K", "5/31/06", "9/5/06")
+
+    # Find all the 10-K's in the range
+    for file in files:
         soup = BeautifulSoup(file, "html.parser")
-        print(len(soup.find_all("p")))
+        the_risk_factors = soup.select('p b i font')
+        print(len(the_risk_factors))
+        #i = 1
+        #for risk_factor in the_risk_factors:
+        #    print('\n\n' + str(i) + '.\t' + risk_factor.text + '\n\n')
+        #    i += 1
