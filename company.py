@@ -46,30 +46,33 @@ class Company():
         output = []
 
         for f in searchIndices:
+            print("\tsearching " + f)
             file = open(f, 'r')
-            index_file = file.read()
-            
-            # Search index file for entry matching this
-            for line in index_file.splitlines()[11:]:
-                data = line.split("|")
-                if int(self.cik) == int(data[0]) and (filingType in data[2]):
-                    output.append(Company.ARCHIVE_URL + data[4]) # data[4] = txt file
-                    
+            try:
+                index_file = file.read()
+                # Search index file for entry matching this
+                for line in index_file.splitlines()[11:]:
+                    data = line.split("|")
+                    if int(self.cik) == int(data[0]) and (filingType in data[2]):
+                        output.append(Company.ARCHIVE_URL + data[4]) # data[4] = txt file
+            except UnicodeDecodeError as err:
+                print("\t\tUnicodeDecodeError", err)
+
         return output # returns list of txt file urls corresponding to fyear and filing type
 
     # Returns the txt content of a filing for this company
     def getFilingsFromURL(self, filingType, startDate, endDate):
-        
+
         # Get the files for this filingType on this fiscal year
         urls = self.getFilingsURLs(filingType, startDate, endDate)
-        
+
         # Download all of the files
         txtFiles = []
         for url in urls:
             c = requests.get(url).content.decode("utf-8").splitlines()[9: -1];
             txtFiles.append(self.getHTMLFromText(c))
 
-        return txtFiles # returns list of txt files corresponding to fyear and filing type
+        return (txtFiles, urls) # returns list of txt files corresponding to fyear and filing type
 
     # Returns a single string representation of the given array
     def getHTMLFromText(self, text):
