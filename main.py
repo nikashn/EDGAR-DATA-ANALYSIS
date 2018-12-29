@@ -2,6 +2,7 @@ from edgar_utils import EdgarLookup
 from company import Company
 from bs4 import BeautifulSoup
 import csv
+import re
 
 def funda_test():
     with open('funda_20181025_updated.csv') as csv_file:
@@ -31,19 +32,12 @@ def funda_test():
 
             # Process each file
             print("\t[found " + str(len(files)) + " files]")
-            num_zeroes = 0
             for i in range(len(files)):
                 print("\t[" + urls[i] + ":", end='\t')
                 soup = BeautifulSoup(files[i], "html.parser")
-                the_risk_factors = soup.select('p b i font')
-                if len(the_risk_factors) == 0:
-                    num_zeroes += 1
+                the_risk_factors = soup.select('p b i')
                 print(str(len(the_risk_factors)) + "]")
             print()
-
-        percent_zeroes = num_zeroes/len(files) * 100
-        print(percent_zeroes, '%') 
-
 
 if __name__ == "__main__":
     funda_test()
