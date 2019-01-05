@@ -1,8 +1,6 @@
 import requests, zipfile, io
 import os
-from math import ceil
 from edgar_utils import EdgarDownloader
-from bs4 import BeautifulSoup
 
 # Represents a company in the EDGAR database
 class Company():
@@ -75,6 +73,7 @@ class Company():
         return (txtFiles, urls) # returns list of txt files corresponding to fyear and filing type
 
     # Returns a single string representation of the given array
+    # if no html file is found, returns null
     def getHTMLFromText(self, text):
         # Remove all lines before <html>
         while "<html>" not in text[0].lower():
@@ -83,6 +82,20 @@ class Company():
         # Remove all ending lines after <\html>
         while "</html>" not in text[len(text) - 1].lower():
             del(text[len(text) - 1])
+
+        # if it's not an html file
+        if "html" in text[0].lower():
+            print("HTML FOUND")
+        else:
+            print("HTML NOT FOUND")
+
+        while "item 1b" not in text[len(text) - 1].lower() and "item_1b" not in text[len(text) - 1].lower():
+            del(text[len(text) - 1])
+
+        while "item 1a" not in text[0].lower() and "item_1a" not in text[0].lower():
+            del(text[0])
+
+        #print(text[0])
 
         # Return a single string (joined by a single space)
         return " ".join(x.strip() for x in text)
